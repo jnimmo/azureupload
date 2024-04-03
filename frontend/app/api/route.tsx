@@ -6,28 +6,14 @@ import {
   StorageSharedKeyCredential,
   generateBlobSASQueryParameters,
 } from "@azure/storage-blob";
+
 import { encodeShareString } from "../utils/shareString";
+import { generateContainerSasToken } from "../actions/createSASToken";
 
-export function generateContainerSasToken(
-  containerName: string,
-  credential: StorageSharedKeyCredential
-) {
-  const sasOptions = {
-    containerName,
-    permissions: BlobSASPermissions.parse("cw"),
-    startsOn: new Date(),
-    expiresOn: new Date(new Date().valueOf() + 3600 * 1000), // 1 hour expiration
-  };
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const containerName = searchParams.get("container");
 
-  // Generate SAS token
-  const sasQueryParameters = generateBlobSASQueryParameters(
-    sasOptions,
-    credential
-  );
-  return sasQueryParameters.toString();
-}
-
-export async function createShareLink(containerName: string) {
   const storageAccountName = process.env.NEXT_PUBLIC_STORAGE_ACCOUNT;
   const secretAccountKey = process.env.SECRET_ACCESS_KEY;
 
@@ -38,7 +24,6 @@ export async function createShareLink(containerName: string) {
     return { error: "Missing credentials" };
   }
 
-  console.log("Hi");
   try {
     // Generate SAS token
     const sharedKeyCredential = new StorageSharedKeyCredential(
@@ -57,17 +42,27 @@ export async function createShareLink(containerName: string) {
       console.error(`Container ${containerName} does not exist`);
       return { error: "Container does not exist" };
     }
-    const token = generateContainerSasToken(containerName, sharedKeyCredential);
-    console.log(token);
+
+    const sasOptions = {
+      containerName,
+      permissions: BlobSASPermissions.parse("cw"),
+      startsOn: new Date(),
+      expiresOn: new Date(new Date().valueOf() + 3600 * 1000), // 1 hour expiration
+    };
+
+    // Generate SAS token
+    const sasQueryParameters = generateBlobSASQueryParameters(
+      sasOptions,
+      sharedKeyCredential
+    );
+
     const encodedShareString = encodeShareString({
       container: containerName,
-      token: token,
+      token: sasQueryParameters.toString(),
     });
-    return { token: encodedShareString };
+    return Response.json({ token: encodedShareString });
   } catch (error) {
     console.error("Error creating container: ", error);
-    return {
-      error: "An error occurred creating the container",
-    };
+    return Response.json({ error: "An error occurred creating the container" });
   }
 }

@@ -1,30 +1,22 @@
 "use client";
 import { ClipboardIcon } from "@heroicons/react/24/outline";
 
-interface ShareLinkButtonProps {
-  containerName: string;
-  createShareLink: (
-    containerName: string
-  ) => Promise<{ token?: string; error?: string }>;
-}
-
-const ShareLinkButton = ({
-  containerName,
-  createShareLink,
-}: ShareLinkButtonProps) => {
+const ShareLinkButton = ({ containerName }: ShareLinkButtonProps) => {
   const handleGetShareLink = async () => {
     // Call an API endpoint to generate the SAS token for the container
-    const response = await createShareLink(containerName);
-    console.log(JSON.stringify(response));
-    if (!response.token) {
-      alert(`Failed to generate share link.: ${JSON.stringify(response)}`);
+    const res = await fetch(`/api?container=${containerName}`);
+    const { token } = res.json();
+
+    console.log(JSON.stringify(res));
+    if (!token) {
+      alert(`Failed to generate share link.: ${JSON.stringify(res)}`);
       return;
     }
 
     const { protocol, hostname, port, pathname } = window.location;
-    const shareLink = `${protocol}//${hostname}${port ? ":" + port : ""}/?u=${
-      response.token
-    }`;
+    const shareLink = `${protocol}//${hostname}${
+      port ? ":" + port : ""
+    }/?u=${token}`;
 
     // Copy the share link to the clipboard
     navigator.clipboard
