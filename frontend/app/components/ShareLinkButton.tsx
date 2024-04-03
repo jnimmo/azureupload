@@ -5,7 +5,7 @@ const ShareLinkButton = ({ containerName }: ShareLinkButtonProps) => {
   const handleGetShareLink = async () => {
     // Call an API endpoint to generate the SAS token for the container
     const res = await fetch(`/api?container=${containerName}`);
-    const { token } = res.json();
+    const { token }: { token: string } = await res.json();
 
     console.log(JSON.stringify(res));
     if (!token) {

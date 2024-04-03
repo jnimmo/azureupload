@@ -8,7 +8,7 @@ import {
 } from "@azure/storage-blob";
 import { encodeShareString } from "../utils/shareString";
 
-export function generateContainerSasToken(
+export async function generateContainerSasToken(
   containerName: string,
   credential: StorageSharedKeyCredential
 ) {
