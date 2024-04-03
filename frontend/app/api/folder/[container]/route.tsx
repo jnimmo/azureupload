@@ -16,6 +16,7 @@ export async function POST(
   request: Request,
   { params }: { params: { container: string } }
 ) {
+  const { containerDescription }: { containerDescription: string}  = await request.json()
   const storageAccountName = process.env.NEXT_PUBLIC_STORAGE_ACCOUNT;
   const secretAccountKey = process.env.SECRET_ACCESS_KEY;
 
