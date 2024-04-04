@@ -8,10 +8,11 @@ import {
   generateBlobSASQueryParameters,
 } from "@azure/storage-blob";
 import { encodeShareString } from "../utils/shareString";
+import { getAuthenticatedBlobStorageClient } from "../data/getAuthenticatedBlobClient";
 
 function generateContainerSasToken(
   containerName: string,
-  credential: StorageSharedKeyCredential
+  credential: BlobServiceClient
 ) {
   const sasOptions = {
     containerName,
@@ -29,26 +30,12 @@ function generateContainerSasToken(
 }
 
 export async function createShareLink(containerName: string) {
-  const storageAccountName = process.env.NEXT_PUBLIC_STORAGE_ACCOUNT;
-  const secretAccountKey = process.env.SECRET_ACCESS_KEY;
-
-  if (!containerName || !storageAccountName || !secretAccountKey) {
-    console.error(
-      "Error creating container, missing caseNumber or storage account SAS token"
-    );
-    return { error: "Missing credentials" };
+  const blobServiceClient = await getAuthenticatedBlobStorageClient();
+  if (!blobServiceClient) {
+    return { error: "Error getting blob service client." };
   }
 
   try {
-    // Generate SAS token
-    const sharedKeyCredential = new StorageSharedKeyCredential(
-      storageAccountName,
-      secretAccountKey
-    );
-    const blobServiceClient = new BlobServiceClient(
-      `https://${storageAccountName}.blob.core.windows.net`,
-      sharedKeyCredential
-    );
     const containerClient = blobServiceClient.getContainerClient(containerName);
 
     // Check if the container exists
