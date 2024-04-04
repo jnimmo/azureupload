@@ -2,6 +2,7 @@
 const nextConfig = {
   experimental: {
     serverMinification: false,
+    taint: true,
   },
 };
 
