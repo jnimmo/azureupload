@@ -33,6 +33,8 @@ export const uploadFileToAzureBlob = async (
           fileType: file.fileType,
           assetName: file.assetName,
         },
+        blockSize: 20 * 1048576,
+        concurrency: 8,
       }
     );
     console.log(
