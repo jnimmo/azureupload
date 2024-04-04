@@ -6,6 +6,7 @@ import {
   StorageSharedKeyCredential,
 } from "@azure/storage-blob";
 import { z } from "zod";
+import { revalidatePath } from "next/cache";
 
 const schema = z.object({
   containerName: z.string().min(4),
@@ -55,6 +56,8 @@ export async function createContainer(
         description: parse.data.containerDescription || "",
       },
     });
+
+    revalidatePath("/portal");
     return {
       message: `Created container ${parse.data.containerName}`,
       success: true,

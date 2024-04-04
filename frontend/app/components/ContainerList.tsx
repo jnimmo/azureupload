@@ -8,6 +8,8 @@ import ShareLinkButton from "./ShareLinkButton";
 import { ListContainersResponse } from "../types";
 import "server-only";
 
+export const dynamic = "force-dynamic";
+
 async function getContainers(): Promise<ListContainersResponse> {
   "use server";
 

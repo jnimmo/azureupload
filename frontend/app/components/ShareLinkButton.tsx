@@ -16,6 +16,7 @@ const ShareLinkButton = ({
 }: ShareLinkButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [shareLink, setShareLink] = useState<string>("");
+  const [linkCopied, setLinkCopied] = useState(true);
 
   function closeModal() {
     setIsOpen(false);
@@ -25,7 +26,7 @@ const ShareLinkButton = ({
     setIsOpen(true);
   }
 
-  async function onClick(event: MouseEvent) {
+  async function onClick(event: any) {
     const response = await createShareLink(containerName);
 
     console.log(JSON.stringify(response));
@@ -45,8 +46,11 @@ const ShareLinkButton = ({
     // Copy the share link to the clipboard
     navigator.clipboard
       .writeText(shareLink)
-      .then(() => alert("Share link copied to clipboard!"))
-      .catch((err) => console.error("Failed to copy share link:", err));
+      .then(() => setLinkCopied(true))
+      .catch((err) => {
+        console.error("Failed to copy share link:", err);
+        setLinkCopied(false);
+      });
   }
 
   return (
@@ -81,6 +85,7 @@ const ShareLinkButton = ({
                     className="text-lg font-medium leading-6 text-gray-900"
                   >
                     Upload request link for
+                    {linkCopied && <p>Copied to clipboard</p>}
                   </Dialog.Title>
                   <div>
                     <input
