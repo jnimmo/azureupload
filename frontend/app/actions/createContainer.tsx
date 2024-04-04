@@ -6,7 +6,10 @@ import { revalidatePath } from "next/cache";
 import { getAuthenticatedBlobStorageClient } from "../data/getAuthenticatedBlobClient";
 
 const schema = z.object({
-  containerName: z.string().min(4),
+  containerName: z.string().regex(/^[a-z0-9-]{4,20}$/, {
+    message:
+      "Names can only contain lowercase letters and numbers and hypens, between 4 and 20 characters long.",
+  }),
   containerDescription: z.string().optional(),
 });
 

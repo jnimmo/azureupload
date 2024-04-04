@@ -15,7 +15,8 @@ export async function UserInfo() {
     <>
       <div>
         <p>
-          Welcome {clientPrincipal ? clientPrincipal.userId : "unknown user"}
+          Welcome{" "}
+          {clientPrincipal ? clientPrincipal.userDetails : "unknown user"}
         </p>
       </div>
     </>

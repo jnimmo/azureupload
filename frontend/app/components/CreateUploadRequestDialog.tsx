@@ -85,6 +85,7 @@ export default function CreateUploadRequestDialog() {
                   <form
                     action={async (FormData) => {
                       await formAction(FormData);
+
                       router.refresh();
                     }}
                     className="mt-2"
@@ -100,6 +101,10 @@ export default function CreateUploadRequestDialog() {
                         type="text"
                         name="containerName"
                         id="containerName"
+                        placeholder="inc-1000"
+                        pattern="[a-z0-9-]{4,20}"
+                        minLength={4}
+                        maxLength={20}
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                         value={containerName}
                         onChange={(e) => setContainerName(e.target.value)}
@@ -123,8 +128,8 @@ export default function CreateUploadRequestDialog() {
                         }
                       />
                     </div>
-                    <p aria-live="polite" className="sr-only">
-                      {state?.message}
+                    <p aria-live="polite">
+                      {state?.message ? state.message : ""}
                     </p>
                     <div className="mt-4">
                       <button

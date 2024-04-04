@@ -1,38 +1,22 @@
-import {
-  BlobServiceClient,
-  ContainerItem,
-  StorageSharedKeyCredential,
-} from "@azure/storage-blob";
+import { ContainerItem } from "@azure/storage-blob";
 import { createShareLink } from "@/app/actions/createSASToken";
 import ShareLinkButton from "./ShareLinkButton";
 import { ListContainersResponse } from "../types";
 import "server-only";
+import { getAuthenticatedBlobStorageClient } from "../data/getAuthenticatedBlobClient";
 
 export const dynamic = "force-dynamic";
 
 async function getContainers(): Promise<ListContainersResponse> {
   "use server";
 
-  const storageAccountName = process.env.NEXT_PUBLIC_STORAGE_ACCOUNT;
-  const secretAccountKey = process.env.SECRET_ACCESS_KEY;
-  if (!storageAccountName || !secretAccountKey) {
-    console.error(
-      "Error getting containers, missing caseNumber or storage account SAS token"
-    );
-    return { error: "Missing storage account credentials." };
+  const blobServiceClient = await getAuthenticatedBlobStorageClient();
+  if (!blobServiceClient) {
+    return {
+      error: "An error occurred getting the blob service client",
+    };
   }
-  // Generate SAS token
-  const sharedKeyCredential = new StorageSharedKeyCredential(
-    storageAccountName,
-    secretAccountKey
-  );
-
   try {
-    const blobServiceClient = new BlobServiceClient(
-      `https://${storageAccountName}.blob.core.windows.net`,
-      sharedKeyCredential
-    );
-
     const containers: ContainerItem[] = [];
     for await (const container of blobServiceClient.listContainers()) {
       containers.push(container);

@@ -12,7 +12,7 @@ import { getAuthenticatedBlobStorageClient } from "../data/getAuthenticatedBlobC
 
 function generateContainerSasToken(
   containerName: string,
-  credential: BlobServiceClient
+  credential: StorageSharedKeyCredential
 ) {
   const sasOptions = {
     containerName,
@@ -37,13 +37,18 @@ export async function createShareLink(containerName: string) {
 
   try {
     const containerClient = blobServiceClient.getContainerClient(containerName);
+    if (!containerClient || !containerClient.credential) {
+      return { error: "Error getting container client credentials" };
+    }
 
     // Check if the container exists
     const exists = await containerClient.exists();
     if (!exists) {
       return { error: "Container does not exist" };
     }
-    const token = generateContainerSasToken(containerName, sharedKeyCredential);
+
+    const credential = containerClient.credential as StorageSharedKeyCredential;
+    const token = generateContainerSasToken(containerName, credential);
 
     const encodedShareString = encodeShareString({
       container: containerName,

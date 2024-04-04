@@ -1,6 +1,6 @@
 "use client";
 import { Dialog, Transition } from "@headlessui/react";
-import { ClipboardIcon } from "@heroicons/react/24/outline";
+import { ClipboardIcon, LinkIcon } from "@heroicons/react/24/outline";
 import { Fragment, useState } from "react";
 
 interface ShareLinkButtonProps {
@@ -100,7 +100,7 @@ const ShareLinkButton = ({
           </div>
         </Dialog>
       </Transition>
-      <ClipboardIcon
+      <LinkIcon
         className="h-5 w-5 text-gray-600 hover:text-blue-500"
         onClick={onClick}
       />
