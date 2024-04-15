@@ -1,11 +1,9 @@
 # Description
 Proof of concept project to provide a simple web interface for creating containers in Azure Blob Storage for the purpose of requesting file uploads from third parties.
 
-The admin portal enables container creation and generation of a upload request sharing link.
-
-The generated share links include the name of the container so this can be displayed on the upload page; and a Base64 URL encoded SAS write only upload token.
-
-The upload page can be cached by the server and the SAS write only key is extracted from the URI query params by the client.
+- Admin portal enables container creation and generation of a upload request sharing link.
+- Share links embed the name of the container so this can be displayed on the upload page, and a Base64 URL encoded SAS write-only upload token.
+- Client upload page extracts the write-only SAS token client side and enables drag and drop upload directly to blob storage.
 
 The raw upload string consists of:
 ```1container_name|<SAS Key>```
