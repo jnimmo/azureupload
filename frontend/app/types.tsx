@@ -9,6 +9,7 @@ export interface UploadFile {
   fileType: string;
   assetName: string;
   error: string;
+  errorMessage: string;
   abortController?: AbortController;
 }
 

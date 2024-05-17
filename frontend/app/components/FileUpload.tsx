@@ -7,11 +7,21 @@ import { v4 as uuidv4 } from "uuid";
 import { UploadFile } from "../types";
 import { uploadFileToAzureBlob } from "../utils/upload"; // This will be defined in the next step
 import { useContainerToken } from "@/app/utils/useContainerToken";
-import { QueryString } from "./GetQueryString";
+import { useSearchParams } from "next/navigation";
+import { error } from "console";
 
 const FileUpload: React.FC = () => {
   const [files, setFiles] = useState<UploadFile[]>([]);
   const uploadRequest = useContainerToken();
+  const searchParams = useSearchParams();
+  const expiryDateString = uploadRequest?.expiryDate.toLocaleString("en-NZ", {
+    weekday: "long",
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+  });
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const mappedFiles: UploadFile[] = acceptedFiles.map((file) => ({
@@ -66,37 +76,49 @@ const FileUpload: React.FC = () => {
         if (result.success) {
           updateFileDetails(file.id, "status", "completed");
         } else {
+          throw new Error(result.message);
           updateFileDetails(file.id, "status", "error");
+          updateFileDetails(file.id, "errorMessage", result.message);
         }
+      } else {
+        throw new Error("Invalid upload request.");
       }
     } catch (error) {
       console.error("Upload error:", error);
       updateFileDetails(file.id, "status", "error");
+      updateFileDetails(file.id, "errorMessage", error.message);
     }
   };
 
   // Handle other events like selecting file type, asset name, and starting the upload
-  if (!uploadRequest) {
+  let shareLinkErrorMessage = "";
+  if (searchParams.get("u") == null) {
+    shareLinkErrorMessage = "A valid file link request is required.";
+  } else if (uploadRequest == null) {
+    shareLinkErrorMessage =
+      "Invalid file request link. Please check you have copied/typed the URL correctly.";
+  } else if (uploadRequest.expiryDate < new Date()) {
+    shareLinkErrorMessage =
+      "The file upload request has expired. Please obtain a new link to upload additional files.";
+  }
+  if (shareLinkErrorMessage) {
     return (
       <div>
-        <p>Invalid URL. Please check you have copied the URL correctly.</p>
+        <p>{shareLinkErrorMessage}</p>
       </div>
     );
   }
+
   return (
     <div>
       <div>
-        <h1>Upload Request {uploadRequest.container}</h1>
-        Link valid until{" "}
-        {uploadRequest.expiryDate.toLocaleString("en-NZ", {
-          weekday: "long",
-          day: "numeric",
-          month: "numeric",
-          year: "numeric",
-          hour: "numeric",
-          minute: "numeric",
-        })}
-        {uploadRequest.expiryDate > new Date() && <p>Link has not expired</p>}
+        <h1>Upload Request {uploadRequest?.container}</h1>
+        <p suppressHydrationWarning>
+          Link valid until{" "}
+          <time suppressHydrationWarning dateTime={expiryDateString}>
+            {expiryDateString}
+          </time>
+        </p>
       </div>
       <div
         {...getRootProps()}
@@ -166,6 +188,7 @@ const FileUpload: React.FC = () => {
                     ""
                   )}
                   {file.status === "completed" && <p>Complete</p>}
+                  {file.status === "error" && <p>{file.errorMessage}</p>}
                 </td>
                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                   {(file.status === "pending" || file.status === "error") && (
