@@ -43,6 +43,6 @@ export const uploadFileToAzureBlob = async (
   } catch (error) {
     console.error("Upload failed:", error);
     onProgress(0);
-    return { success: false, message: error };
+    return { success: false, message: error.message || "Upload failed" };
   }
 };

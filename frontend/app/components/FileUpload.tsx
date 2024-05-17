@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 import { UploadFile } from "../types";
 import { uploadFileToAzureBlob } from "../utils/upload"; // This will be defined in the next step
 import { useContainerToken } from "@/app/utils/useContainerToken";
+import { QueryString } from "./GetQueryString";
 
 const FileUpload: React.FC = () => {
   const [files, setFiles] = useState<UploadFile[]>([]);
@@ -86,6 +87,16 @@ const FileUpload: React.FC = () => {
     <div>
       <div>
         <h1>Upload Request {uploadRequest.container}</h1>
+        Link valid until{" "}
+        {uploadRequest.expiryDate.toLocaleString("en-NZ", {
+          weekday: "long",
+          day: "numeric",
+          month: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "numeric",
+        })}
+        {uploadRequest.expiryDate > new Date() && <p>Link has not expired</p>}
       </div>
       <div
         {...getRootProps()}

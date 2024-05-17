@@ -16,6 +16,7 @@ export interface UploadRequest {
   version?: string;
   container: string;
   token: string;
+  expiryDate: Date;
 }
 
 export interface ListContainersResponse {
